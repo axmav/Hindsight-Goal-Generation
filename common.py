@@ -70,6 +70,8 @@ def get_args():
 		if key!='logger':
 			args.logger.info('{}: {}'.format(key,value))
 
+	args.reward_dims = 1
+
 	return args
 
 def experiment_setup(args):

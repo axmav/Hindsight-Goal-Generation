@@ -1,4 +1,4 @@
-from .ddpg2 import DDPG
+from .ddpg import DDPG
 
 def create_agent(args):
 	return {

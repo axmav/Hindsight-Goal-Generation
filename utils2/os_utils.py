@@ -8,6 +8,8 @@ import numpy as np
 import tensorflow as tf
 from termcolor import colored
 from beautifultable import BeautifulTable
+import pickle
+import csv
 
 def str2bool(value):
 	if isinstance(value, bool):
@@ -58,11 +60,14 @@ class Logger:
 		else: self.name = name + time.strftime('-(%Y-%m-%d-%H:%M:%S)')
 
 		self.my_log_dir = "log/{}/".format(name)
-		log_file = 'log/text/'+self.name+'.log'
+		log_file = self.my_log_dir + "output.log"
 		self.logger = logging.getLogger(log_file)
 		self.logger.setLevel(logging.DEBUG)
 
 		make_dir(self.my_log_dir, clear=True)
+		make_dir("{}temp/".format(self.my_log_dir), clear=True)
+		self.csv_file_path = "{}progress.csv".format(self.my_log_dir)
+
 
 		FileHandler = logging.FileHandler(log_file)
 		FileHandler.setLevel(logging.DEBUG)
@@ -186,6 +191,34 @@ class Logger:
 		else:
 			save_path = 'log/'+folder+'/'+self.name
 		np.savez(save_path+'/'+info_name+'.npz',info=info)
+
+	def save_agent(self, data, mode): # TODO: new
+		# pickles current agent for later inspection
+		if mode == "periodical":
+			path = "{}agent_{}.pkl".format(self.my_log_dir, self.values["Epoch"])
+			print("Saved periodic agent at epoch {} in {}".format(self.values["Epoch"], path))
+		elif mode == "best":
+			path = "{}agent_best.pkl".format(self.my_log_dir)
+			print("Saved new best agent in {}".format(path))
+		elif mode == "latest":
+			path = "{}agent_latest.pkl".format(self.my_log_dir)
+			print("Saved latest agent in {}".format(path))
+		else:
+			print("save_agent: no mode specified!")
+		with open(path, 'wb') as f:
+			pickle.dump(data, f)
+
+	def save_csv(self):
+		if (not os.path.isfile(self.csv_file_path)) or os.stat(self.csv_file_path).st_size == 0:
+			with open(self.csv_file_path, 'w') as csv_file:
+				self.writer = csv.DictWriter(csv_file, fieldnames=self.keys)
+				self.writer.writeheader()
+				self.writer.writerow(self.values)
+		else:
+			with open(self.csv_file_path, 'a') as csv_file:
+				self.writer = csv.DictWriter(csv_file, fieldnames=self.keys)
+				self.writer.writerow(self.values)
+		return self.values
 
 class SummaryWriter:
 	def __init__(self, graph, sess, summary_path):

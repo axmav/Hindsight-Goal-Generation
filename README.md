@@ -19,3 +19,6 @@ python train.py --tag='HGG_fetch_pick' --env=FetchPickAndPlace-v1
 python train.py --tag='HGG_hand_block' --env=HandManipulateBlock-v0
 python train.py --tag='HGG_hand_egg' --env=HandManipulateEgg-v0
 ```
+
+---
+TF2 support in ddpg2 and utils2 with useful debugging tools

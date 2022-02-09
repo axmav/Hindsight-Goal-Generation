@@ -24,6 +24,7 @@ class Tester:
 			self.acc_record[self.args.goal] = []
 			for key in self.acc_record.keys():
 				self.info.append('Success/'+key+'@blue')
+				self.info.append('Success' + '@blue')
 
 	def test_acc(self, key, env, agent):
 		acc_sum, obs = 0.0, []
@@ -43,6 +44,7 @@ class Tester:
 		acc = acc_sum/self.test_rollouts
 		self.acc_record[key].append((steps,acc))
 		self.args.logger.add_record('Success/'+key, acc)
+		self.args.logger.add_record('Success', acc)
 
 	def cycle_summary(self):
 		if self.args.save_acc:

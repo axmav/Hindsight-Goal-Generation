@@ -1,7 +1,7 @@
 import numpy as np
 import copy
 from envs import make_env, clip_return_range, Robotics_envs_id
-from utils2.os_utils import get_arg_parser, get_logger, str2bool
+from utils.os_utils import get_arg_parser, get_logger, str2bool
 from algorithm import create_agent
 from learner import create_learner, learner_collection
 from test import Tester

@@ -1,7 +1,7 @@
 import numpy as np
 import copy
 from envs import make_env, clip_return_range, Robotics_envs_id
-from utils.os_utils import get_arg_parser, get_logger, str2bool
+from utils2.os_utils import get_arg_parser, get_logger, str2bool
 from algorithm import create_agent
 from learner import create_learner, learner_collection
 from test import Tester
@@ -25,6 +25,9 @@ def get_args():
 		elif args.env[:4]=='Hand':
 			parser.add_argument('--init_rotation', help='initial rotation in hand environments', type=np.float32, default=0.25)
 
+	parser.add_argument('--play_path', help='path to meta_file directory for play', type=str, default=None)
+	parser.add_argument('--play_epoch', help='epoch to play', type=str, default='latest')
+
 	parser.add_argument('--gamma', help='discount factor', type=np.float32, default=0.98)
 	parser.add_argument('--clip_return', help='whether to clip return value', type=str2bool, default=True)
 	parser.add_argument('--eps_act', help='percentage of epsilon greedy explorarion', type=np.float32, default=0.3)
@@ -35,8 +38,8 @@ def get_args():
 	parser.add_argument('--act_l2', help='quadratic penalty on actions', type=np.float32, default=1.0)
 	parser.add_argument('--polyak', help='interpolation factor in polyak averaging for DDPG', type=np.float32, default=0.95)
 
-	parser.add_argument('--epochs', help='number of epochs', type=np.int32, default=20)
-	parser.add_argument('--cycles', help='number of cycles per epoch', type=np.int32, default=20)
+	parser.add_argument('--epochs', help='number of epochs', type=np.int32, default=1)
+	parser.add_argument('--cycles', help='number of cycles per epoch', type=np.int32, default=1)
 	parser.add_argument('--episodes', help='number of episodes per cycle', type=np.int32, default=50)
 	parser.add_argument('--timesteps', help='number of timesteps per episode', type=np.int32, default=(50 if args.env[:5]=='Fetch' else 100))
 	parser.add_argument('--train_batches', help='number of batches to train per episode', type=np.int32, default=20)

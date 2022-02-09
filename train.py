@@ -1,8 +1,15 @@
 import numpy as np
 import time
 from common import get_args,experiment_setup
+import tensorflow as tf
 
 if __name__=='__main__':
+
+	tf.compat.v1.disable_eager_execution()
+	# After eager execution is enabled, operations are executed as they are
+	# defined and Tensor objects hold concrete values, which can be accessed as
+	# numpy.ndarray`s through the numpy() method.
+
 	args = get_args()
 	env, env_test, agent, buffer, learner, tester = experiment_setup(args)
 
@@ -44,5 +51,9 @@ if __name__=='__main__':
 			args.logger.summary_show(buffer.counter)
 
 		tester.epoch_summary()
+		# Save periodic policy every epoch
+		policy_file = args.logger.my_log_dir + "saved_policy"
+		agent.saver.save(agent.sess, policy_file, global_step=epoch)
+		args.logger.info("Saved periodic policy to {}!".format(args.logger.my_log_dir))
 
 	tester.final_summary()

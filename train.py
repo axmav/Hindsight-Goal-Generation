@@ -4,6 +4,12 @@ from common import get_args,experiment_setup
 import tensorflow as tf
 
 if __name__=='__main__':
+
+	tf.compat.v1.disable_eager_execution()
+	# After eager execution is enabled, operations are executed as they are
+	# defined and Tensor objects hold concrete values, which can be accessed as
+	# numpy.ndarray`s through the numpy() method.
+
 	args = get_args()
 	env, env_test, agent, buffer, learner, tester = experiment_setup(args)
 
@@ -15,8 +21,6 @@ if __name__=='__main__':
 	args.logger.add_item('Episodes@green')
 	args.logger.add_item('Timesteps')
 	args.logger.add_item('TimeCost(sec)')
-
-	best_success = -1
 
 	# Algorithm info
 	for key in agent.train_info.keys():
@@ -45,13 +49,6 @@ if __name__=='__main__':
 
 			args.logger.tabular_show(args.tag)
 			args.logger.summary_show(buffer.counter)
-
-			# Save policy if new best_success was reached
-			if args.logger.values["Success"] > best_success:
-				best_success = args.logger.values["Success"]
-				policy_file = args.logger.my_log_dir + "saved_policy-best"
-				agent.save(policy_file)
-				args.logger.info("Saved as best policy to {}!".format(args.logger.my_log_dir))
 
 		tester.epoch_summary()
 		# Save periodic policy every epoch

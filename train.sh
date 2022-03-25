@@ -1,0 +1,1 @@
+python train.py --tag='M1_t1' --env=FetchPush-v1 --epochs 3

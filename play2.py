@@ -25,6 +25,7 @@ class Player:
         self.sess = tf.compat.v1.Session()
         self.saver = tf.compat.v1.train.import_meta_graph(self.meta_path)
         self.sess.run(tf.compat.v1.global_variables_initializer())
+        print('check: ', tf.train.latest_checkpoint(self.play_dir))
         self.saver.restore(self.sess, tf.train.latest_checkpoint(self.play_dir))
         graph = tf.compat.v1.get_default_graph()
         self.raw_obs_ph = graph.get_tensor_by_name("raw_obs_ph:0")

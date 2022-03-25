@@ -6,8 +6,6 @@ from algorithm.replay_buffer import goal_based_process
 
 class DDPG:
 	def __init__(self, args):
-		print(tf.__version__)
-		print('Using DDPG for TF1')
 		self.args = args
 		self.create_model()
 
@@ -31,11 +29,10 @@ class DDPG:
 			self.sess = tf.Session(config=config)
 
 		def create_inputs():
-			self.raw_obs_ph = tf.placeholder(tf.float32, [None]+self.args.obs_dims, name='raw_obs_ph')
-			self.raw_obs_next_ph = tf.placeholder(tf.float32, [None]+self.args.obs_dims, name='raw_obs_next_ph')
-			self.acts_ph = tf.placeholder(tf.float32, [None]+self.args.acts_dims, name='acts_ph')
-			#self.rews_ph = tf.placeholder(tf.float32, [None, 1], name='rews_ph')
-			self.rews_ph = tf.placeholder(tf.float32, [None, self.args.reward_dims], name='rews_ph')
+			self.raw_obs_ph = tf.placeholder(tf.float32, [None]+self.args.obs_dims)
+			self.raw_obs_next_ph = tf.placeholder(tf.float32, [None]+self.args.obs_dims)
+			self.acts_ph = tf.placeholder(tf.float32, [None]+self.args.acts_dims)
+			self.rews_ph = tf.placeholder(tf.float32, [None, 1])
 
 		def create_normalizer():
 			with tf.variable_scope('normalizer'):
@@ -86,8 +83,7 @@ class DDPG:
 			else:
 				return_value = self.q_t
 			target = tf.stop_gradient(self.rews_ph+self.args.gamma*return_value)
-			diff = self.q-target
-			self.q_loss = tf.reduce_mean(tf.square(diff))
+			self.q_loss = tf.reduce_mean(tf.square(self.q-target))
 			self.q_optimizer = tf.train.AdamOptimizer(self.args.q_lr)
 			self.q_train_op = self.q_optimizer.minimize(self.q_loss, var_list=get_vars('main/value'))
 
@@ -96,7 +92,7 @@ class DDPG:
 				for v, v_t in zip(get_vars('main'), get_vars('target'))
 			])
 
-			self.saver=tf.train.Saver(max_to_keep=100)
+			self.saver=tf.train.Saver()
 			self.init_op = tf.global_variables_initializer()
 			self.target_init_op = tf.group([
 				v_t.assign(v)
@@ -170,16 +166,3 @@ class DDPG:
 
 	def target_update(self):
 		self.sess.run(self.target_update_op)
-
-	def save(self, filename, global_step = None):  # we just use the
-		self.saver.save(self.sess, filename, global_step=global_step)
-
-	def get_q_pi(self, obs):
-		feed_dict = {
-			self.raw_obs_ph: obs
-		}
-		value = self.sess.run(self.q_pi, feed_dict)[:, 0]  # get the q values at each achieved state
-		#value = np.clip(value, -1.0 / (1.0 - self.args.gamma), 0)
-		value = np.clip(value, self.args.clip_return_l, self.args.clip_return_r)
-		return value
-
